@@ -10,6 +10,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 // Import routes
 const axiomRoutes = require("./routes/axiom");
+const { initializeAxiomTrendingCron } = require("./services/axiomTrendingCron");
 
 const PORT = process.env.PORT || 2233;
 
@@ -80,6 +81,9 @@ mongoose
     if(process.env.RESPOND_TO_REDIS == "true") {
       // startPositionSynchronizationJob()
     }
+
+    // Initialize Axiom trending cron job
+    initializeAxiomTrendingCron();
 
     const server = setupServer(app);
     setupRedis();
