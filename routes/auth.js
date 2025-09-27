@@ -1,0 +1,6 @@
+// Shared authentication cookies for axiom.trade API
+const AXIOM_COOKIES = 'auth-refresh-token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWZyZXNoVG9rZW5JZCI6ImYzYzgwZjYxLWU0ZjgtNDBiZC04Njg3LTc0MzhmZjUyYmY2YiIsImlhdCI6MTc1ODUzMzI4N30.zgSu9XAeeM1B6u3_YhL8T8HMQXLF2TcGSgADN40d0vQ; auth-access-token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRoZW50aWNhdGVkVXNlcklkIjoiYjk5OTUzOTUtYTAwOS00MzQ5LWEwMzctZmM1ZTMzMmI0M2U5IiwiaWF0IjoxNzU4NzY5MzcwLCJleHAiOjE3NTg3NzAzMzB9.e8T8QSbj0Lal0e-tNXA6MS1cd51j0ATxLu6Qxoh7k78';
+
+module.exports = {
+  AXIOM_COOKIES
+};

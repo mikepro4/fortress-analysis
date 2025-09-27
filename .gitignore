@@ -1,0 +1,73 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Editor directories and files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Build output
+/dist/
+/build/
+/coverage/
+/.out/
+
+# Tests
+/coverage/
+/.jest/
+
+# Ignore Mac files
+._*
+
+# Ignore next.js build files
+.next/
+
+# Ignore local test database
+*.sqlite
+
+# Misc
+*.log
+*.lock
+*.pid
+*.seed
+*.pid.lock
+
+# Ignore backups
+*.bak
+*.backup
+
+# Ignore crypto key backups or sensitive files
+*.pem
+*.crt
+*.key

@@ -1,0 +1,44 @@
+{
+  "name": "fortress-position",
+  "version": "1.0.0",
+  "description": "Position management microservice for Fortress trading platform",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "build": "echo 'No build step required for Node.js'",
+    "heroku-postbuild": "npm install --production"
+  },
+  "dependencies": {
+    "@socket.io/redis-adapter": "^8.3.0",
+    "@solana/spl-token": "^0.4.9",
+    "@solana/web3.js": "^1.95.8",
+    "axios": "^1.12.2",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "https-proxy-agent": "^7.0.5",
+    "ioredis": "^5.4.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^7.8.2",
+    "node-cron": "^3.0.3",
+    "redis": "^4.7.0",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.6",
+    "simple-statistics": "^7.8.7",
+    "socket.io": "^4.8.1",
+    "tweetnacl": "^1.0.3",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  },
+  "engines": {
+    "node": ">=20.x"
+  },
+  "keywords": [],
+  "author": "Fortress Team",
+  "license": "MIT"
+}

@@ -1,0 +1,27 @@
+ curl -sS --compressed \
+  -G 'https://api9.axiom.trade/token-info' \
+  --data-urlencode 'pairAddress=DA3Sahnb2vurW6hix5atGduPsxVqN2v7Ur1XhhJPQLER' \
+  -H 'Accept: application/json, text/plain, */*' \
+  -H 'Origin: https://axiom.trade' \
+  -H 'Referer: https://axiom.trade/' \
+  -H 'Cookie: auth-refresh-token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWZyZXNoVG9rZW5JZCI6ImYzYzgwZjYxLWU0ZjgtNDBiZC04Njg3LTc0MzhmZjUyYmY2YiIsImlhdCI6MTc1ODUzMzI4N30.zgSu9XAeeM1B6u3_YhL8T8HMQXLF2TcGSgADN40d0vQ; auth-access-token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRoZW50aWNhdGVkVXNlcklkIjoiYjk5OTUzOTUtYTAwOS00MzQ5LWEwMzctZmM1ZTMzMmI0M2U5IiwiaWF0IjoxNzU4NzcwMjg1LCJleHAiOjE3NTg3NzEyNDV9.-W9pMElzcIEc-rkH9XXpcLiPy96RpyGnQK8LI_2B9fk'
+
+
+curl -X GET "https://api3.axiom.trade/new-trending?timePeriod=5m" \
+  -H "Accept: application/json" \
+  -H "Accept-Language: en-US,en;q=0.9,ru;q=0.8" \
+  -H "Origin: https://axiom.trade" \
+  -H "Referer: https://axiom.trade/" \
+  -H "Cookie: auth-refresh-token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWZyZXNoVG9rZW5JZCI6ImYzYzgwZjYxLWU0ZjgtNDBiZC04Njg3LTc0MzhmZjUyYmY2YiIsImlhdCI6MTc1ODUzMzI4N30.zgSu9XAeeM1B6u3_YhL8T8HMQXLF2TcGSgADN40d0vQ; auth-access-token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRoZW50aWNhdGVkVXNlcklkIjoiYjk5OTUzOTUtYTAwOS00MzQ5LWEwMzctZmM1ZTMzMmI0M2U5IiwiaWF0IjoxNzU4NzY5MzcwLCJleHAiOjE3NTg3NzAzMzB9.e8T8QSbj0Lal0e-tNXA6MS1cd51j0ATxLu6Qxoh7k78"
+
+
+  Message received on tradeExecution_transactionStatusUpdate: {
+  transactionId: '68d4c2a68bb6d92e7702a976',
+  info: {
+    status: 'failed',
+    error: 'Simulation failed: [object Object]',
+    timestamp: '2025-09-25T04:18:57.475Z'
+  }
+}
+
+[WS][ERROR] 2jxLAgXARaRptPHVFxHjc8kHJpwdzQfkskG7mswM2nwPSqd5jZpDwrZYcZi14mDbjGiyXFpNYEfKsUgXBYc5youo -> { InstructionError: [ 6, { Custom: 6004 } ] }
