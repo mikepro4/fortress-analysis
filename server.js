@@ -45,7 +45,7 @@ function setupRedis() {
   redisSubscriber.on("message", (channel, message) => {
     try {
       const data = JSON.parse(message);
-      console.log(`Message received on ${channel}:`, data);
+      // console.log(`Message received on ${channel}:`, data);
 
       if (channel === "tradeExecution_transactionStatusUpdate") {
         if(process.env.RESPOND_TO_REDIS == "true") {
