@@ -1,11 +1,27 @@
 const axios = require("axios");
 const { AXIOM_COOKIES } = require('../routes/auth');
 
-// Create regular axios instance without proxy
-const axiosInstance = axios.create({
+// BrightData Proxy Configuration
+const proxyConfig = {
+  host: "brd.superproxy.io",
+  port: 33335,
+  username: "brd-customer-hl_ab1ea610-zone-datacenter_proxy1",
+  password: "oadmg57se1qi",
+};
+
+// Create axios instance with proxy
+const axiosProxy = axios.create({
+  proxy: {
+    host: proxyConfig.host,
+    port: proxyConfig.port,
+    auth: {
+      username: proxyConfig.username,
+      password: proxyConfig.password
+    }
+  },
   timeout: 10000,
   headers: {
-    'User-Agent': 'Mozilla/5.0 (compatible;)'
+    'User-Agent': 'Mozilla/5.0 (compatible; Fortress-API/1.0)'
   }
 });
 
@@ -20,7 +36,7 @@ const getTokenInfo = async (pairAddress) => {
   }
 
   try {
-    const response = await axiosInstance.get('https://api9.axiom.trade/token-info', {
+    const response = await axiosProxy.get('https://api9.axiom.trade/token-info', {
       params: { pairAddress },
       headers: {
         'Accept': 'application/json, text/plain, */*',
@@ -44,7 +60,7 @@ const getTokenInfo = async (pairAddress) => {
  */
 const getNewTrending = async (timePeriod = '5m') => {
   try {
-    const response = await axiosInstance.get('https://api3.axiom.trade/new-trending', {
+    const response = await axiosProxy.get('https://api3.axiom.trade/new-trending', {
       params: { timePeriod },
       headers: {
         'Accept': 'application/json',

@@ -1,6 +1,7 @@
 const cron = require("node-cron");
 const rp = require("request-promise");
 const { getNewTrending } = require("../controllers/axiomController");
+const { redisPublisher } = require("../redisInstance");
 
 // SOL contract address for price fetching
 const SOL_CONTRACT_ADDRESS = "So11111111111111111111111111111111111111112";
@@ -10,10 +11,19 @@ let cachedSolPrice = null;
 let lastPriceUpdate = null;
 
 // Accepted protocols for token analysis
-const ACCEPTED_PROTOCOLS = ["Pump AMM", "Pump V1", "Raydium CLMM", "Meteora AMM V2", "Raydium CPMM"];
+const ACCEPTED_PROTOCOLS = ["Pump AMM", "Pump V1", "Raydium CLMM", "Meteora AMM V2", "Raydium CPMM", "Raydium V4"];
 
 // Minimum volume in USD
 const MIN_VOLUME_USD = 31000;
+
+// Minimum market cap in USD
+const MIN_MARKET_CAP_USD = 100000;
+
+// Minimum token age in hours (must be older than this)
+const MIN_TOKEN_AGE_HOURS = 10;
+
+// Minimum number of holders
+const MIN_HOLDERS = 600;
 
 // Maximum bundlers hold percentage
 const MAX_BUNDLERS_PERCENT = 30;
@@ -78,6 +88,17 @@ const analyzeToken = async (token) => {
             return false;
         }
 
+        // Check token age (must be older than MIN_TOKEN_AGE_HOURS)
+        const createdAt = new Date(token.createdAt);
+        const now = new Date();
+        const ageInHours = (now - createdAt) / (1000 * 60 * 60); // Convert milliseconds to hours
+        const ageInMinutes = ageInHours * 60; // Convert to minutes for take profit adjustment
+
+        if (ageInHours < MIN_TOKEN_AGE_HOURS) {
+            console.log(`❌ Token ${token.tokenName} (${token.tokenTicker}) rejected: Age ${ageInHours.toFixed(1)}h < ${MIN_TOKEN_AGE_HOURS}h (created: ${createdAt.toISOString()})`);
+            return false;
+        }
+
         // Check bundlers hold percentage
         if (token.bundlersHoldPercent > MAX_BUNDLERS_PERCENT) {
             console.log(`❌ Token ${token.tokenName} (${token.tokenTicker}) rejected: Bundlers hold ${token.bundlersHoldPercent}% > ${MAX_BUNDLERS_PERCENT}%`);
@@ -97,12 +118,61 @@ const analyzeToken = async (token) => {
             return false;
         }
 
+        // Check market cap (convert SOL market cap to USD)
+        const marketCapUSD = token.marketCapSol * solPrice;
+        if (marketCapUSD < MIN_MARKET_CAP_USD) {
+            console.log(`❌ Token ${token.tokenName} (${token.tokenTicker}) rejected: Market Cap $${marketCapUSD.toFixed(2)} < $${MIN_MARKET_CAP_USD}`);
+            return false;
+        }
+
+        // Check number of holders
+        if (token.numHolders < MIN_HOLDERS) {
+            console.log(`❌ Token ${token.tokenName} (${token.tokenTicker}) rejected: Holders ${token.numHolders} < ${MIN_HOLDERS}`);
+            return false;
+        }
+
         // Token passes all criteria
         console.log(`✅ Token ${token.tokenName} (${token.tokenTicker}) approved:`);
         console.log(`   Protocol: ${token.protocol}`);
+        console.log(`   Age: ${ageInHours.toFixed(1)}h`);
+        console.log(`   Holders: ${token.numHolders}`);
         console.log(`   Bundlers: ${token.bundlersHoldPercent}%`);
         console.log(`   Volume: $${volumeUSD.toFixed(2)}`);
-        console.log(`   Market Cap: $${(token.marketCapSol * solPrice).toFixed(2)}`);
+        console.log(`   Market Cap: $${marketCapUSD.toFixed(2)}`);
+        console.log(`   Token: ${token.tokenAddress}`);
+
+        // Adjust takeProfitPct based on token age
+        const baseTakeProfitPct = 20;
+        const youngTokenTakeProfitPct = ageInMinutes < 20 ? 40 : baseTakeProfitPct; // Increase to 50% for young tokens
+
+        console.log(`   Take Profit %: ${youngTokenTakeProfitPct}% ${ageInMinutes < 40 ? '(increased for young token)' : '(standard)'}`);
+
+        // Remove marketCapChartData to reduce payload size
+        const tokenInfo = { ...token };
+        delete tokenInfo.marketCapChartData;
+
+        // Log the clean token info
+        // console.log(`  Axiom Data`, JSON.stringify(tokenInfo, null, 2));
+
+        const automatedMessage = {
+            action: "createTokenWithPosition",
+            tokenAddress: token.tokenAddress,
+            positionInfo: {
+                buyAmountUsd: 0.5,
+                takeProfitPct: youngTokenTakeProfitPct,
+                stopLossPct: -20,
+                axiomData: tokenInfo,
+            },
+            userId: "68adb216925cf7fb10e14914",
+        };
+
+        redisPublisher.publish("automatedChannel", JSON.stringify(automatedMessage), (err, res) => {
+            if (err) {
+                console.error("Redis publish error (testAddTokenWithPosition):", err);
+            } else {
+                console.log("Test token creation event published to automatedChannel:", res);
+            }
+        });
 
         return true;
     } catch (error) {
@@ -158,7 +228,7 @@ const fetchAndLogTrendingTokens = async (timePeriod = '5m') => {
  * - Price updater: runs every minute
  * - Token analysis: runs every 5 minutes by default
  */
-const initializeAxiomTrendingCron = (analysisSchedule = '*/5 * * * *') => {
+const initializeAxiomTrendingCron = (analysisSchedule = '*/10 * * * * *') => {
     console.log('🚀 Initializing Axiom trending analysis system...');
 
     // Start SOL price updater (every minute)
