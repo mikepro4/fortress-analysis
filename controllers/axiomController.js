@@ -1,4 +1,5 @@
 const axios = require("axios");
+const { fetchDataThroughProxy } = require('../utils/proxy');
 const { AXIOM_COOKIES } = require('../routes/auth');
 
 // Create regular axios instance without proxy
@@ -8,7 +9,6 @@ const axiosInstance = axios.create({
     'User-Agent': 'Mozilla/5.0 (compatible;)'
   }
 });
-
 /**
  * Fetches token information from Axiom API
  * @param {string} pairAddress - The pair address to query
@@ -20,8 +20,8 @@ const getTokenInfo = async (pairAddress) => {
   }
 
   try {
-    const response = await axiosInstance.get('https://api9.axiom.trade/token-info', {
-      params: { pairAddress },
+    const url = `https://api9.axiom.trade/token-info?pairAddress=${encodeURIComponent(pairAddress)}`;
+    const response = await fetchDataThroughProxy(url, {
       headers: {
         'Accept': 'application/json, text/plain, */*',
         'Origin': 'https://axiom.trade',
@@ -30,10 +30,10 @@ const getTokenInfo = async (pairAddress) => {
       }
     });
 
-    return response.data;
+    return response;
   } catch (error) {
     console.error('Token info API error:', error.message);
-    throw new Error(`Failed to fetch token info: ${error.response?.data || error.message}`);
+    throw new Error(`Failed to fetch token info: ${error.message}`);
   }
 };
 

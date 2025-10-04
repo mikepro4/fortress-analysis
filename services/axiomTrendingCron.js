@@ -1,6 +1,6 @@
 const cron = require("node-cron");
 const rp = require("request-promise");
-const { getNewTrending } = require("../controllers/axiomController");
+const { getNewTrending, getTokenInfo } = require("../controllers/axiomController");
 const { redisPublisher } = require("../redisInstance");
 
 // SOL contract address for price fetching
@@ -14,16 +14,16 @@ let lastPriceUpdate = null;
 const ACCEPTED_PROTOCOLS = ["Pump AMM", "Pump V1", "Raydium CLMM", "Meteora AMM V2", "Raydium CPMM", "Raydium V4"];
 
 // Minimum volume in USD
-const MIN_VOLUME_USD = 31000;
+const MIN_VOLUME_USD = 5000;
 
 // Minimum market cap in USD
 const MIN_MARKET_CAP_USD = 100000;
 
 // Minimum token age in hours (must be older than this)
-const MIN_TOKEN_AGE_HOURS = 10;
+const MIN_TOKEN_AGE_HOURS = 0.05;
 
 // Minimum number of holders
-const MIN_HOLDERS = 600;
+const MIN_HOLDERS = 650;
 
 // Maximum bundlers hold percentage
 const MAX_BUNDLERS_PERCENT = 30;
@@ -143,12 +143,19 @@ const analyzeToken = async (token) => {
 
         // Adjust takeProfitPct based on token age
         const baseTakeProfitPct = 20;
-        const youngTokenTakeProfitPct = ageInMinutes < 20 ? 40 : baseTakeProfitPct; // Increase to 50% for young tokens
+        const youngTokenTakeProfitPct = ageInMinutes < 20 ? 20 : baseTakeProfitPct; // Increase to 50% for young tokens
 
         console.log(`   Take Profit %: ${youngTokenTakeProfitPct}% ${ageInMinutes < 40 ? '(increased for young token)' : '(standard)'}`);
 
         // Remove marketCapChartData to reduce payload size
-        const tokenInfo = { ...token };
+        const additionalTokenInfo = await getTokenInfo(token.pairAddress);
+        console.log(`  Additional Token Info`, JSON.stringify(additionalTokenInfo, null, 2));
+        const tokenInfo = {
+            ...token,
+            ...additionalTokenInfo,
+        };
+
+
         delete tokenInfo.marketCapChartData;
 
         // Log the clean token info
