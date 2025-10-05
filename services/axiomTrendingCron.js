@@ -19,11 +19,13 @@ const MIN_VOLUME_USD = 5000;
 // Minimum market cap in USD
 const MIN_MARKET_CAP_USD = 100000;
 
-// Minimum token age in hours (must be older than this)
-const MIN_TOKEN_AGE_HOURS = 0.05;
+// Minimum and maximum token age in minutes
+const MIN_TOKEN_AGE_MINUTES = 1;
+const MAX_TOKEN_AGE_MINUTES = 30;
+// const MAX_TOKEN_AGE_MINUTES = 24*60*20000; // 2 hours maximum age
 
 // Minimum number of holders
-const MIN_HOLDERS = 650;
+const MIN_HOLDERS = 300;
 
 // Maximum bundlers hold percentage
 const MAX_BUNDLERS_PERCENT = 30;
@@ -88,14 +90,24 @@ const analyzeToken = async (token) => {
             return false;
         }
 
-        // Check token age (must be older than MIN_TOKEN_AGE_HOURS)
+        // // Check if DEX paid
+        // if (!token.dexPaid) {
+        //     console.log(`❌ Token ${token.tokenName} (${token.tokenTicker}) rejected: DEX not paid`);
+        //     return false;
+        // }
+
+        // Check token age (must be between MIN_TOKEN_AGE_MINUTES and MAX_TOKEN_AGE_MINUTES)
         const createdAt = new Date(token.createdAt);
         const now = new Date();
-        const ageInHours = (now - createdAt) / (1000 * 60 * 60); // Convert milliseconds to hours
-        const ageInMinutes = ageInHours * 60; // Convert to minutes for take profit adjustment
+        const ageInMinutes = (now - createdAt) / (1000 * 60); // Convert milliseconds to minutes
 
-        if (ageInHours < MIN_TOKEN_AGE_HOURS) {
-            console.log(`❌ Token ${token.tokenName} (${token.tokenTicker}) rejected: Age ${ageInHours.toFixed(1)}h < ${MIN_TOKEN_AGE_HOURS}h (created: ${createdAt.toISOString()})`);
+        if (ageInMinutes < MIN_TOKEN_AGE_MINUTES) {
+            console.log(`❌ Token ${token.tokenName} (${token.tokenTicker}) rejected: Age ${ageInMinutes.toFixed(1)}min < ${MIN_TOKEN_AGE_MINUTES}min (created: ${createdAt.toISOString()})`);
+            return false;
+        }
+
+        if (ageInMinutes > MAX_TOKEN_AGE_MINUTES) {
+            console.log(`❌ Token ${token.tokenName} (${token.tokenTicker}) rejected: Age ${ageInMinutes.toFixed(1)}min > ${MAX_TOKEN_AGE_MINUTES}min (created: ${createdAt.toISOString()})`);
             return false;
         }
 
@@ -134,7 +146,7 @@ const analyzeToken = async (token) => {
         // Token passes all criteria
         console.log(`✅ Token ${token.tokenName} (${token.tokenTicker}) approved:`);
         console.log(`   Protocol: ${token.protocol}`);
-        console.log(`   Age: ${ageInHours.toFixed(1)}h`);
+        console.log(`   Age: ${ageInMinutes.toFixed(1)}min`);
         console.log(`   Holders: ${token.numHolders}`);
         console.log(`   Bundlers: ${token.bundlersHoldPercent}%`);
         console.log(`   Volume: $${volumeUSD.toFixed(2)}`);
