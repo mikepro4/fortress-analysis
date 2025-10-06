@@ -37,6 +37,56 @@ const getTokenInfo = async (pairAddress) => {
   }
 };
 
+const getTokenStats = async (pairAddress) => {
+  if (!pairAddress) {
+    throw new Error('pairAddress parameter is required');
+  }
+
+  try {
+    const url = `https://api9.axiom.trade/pair-stats?pairAddress=${encodeURIComponent(pairAddress)}`;
+    const response = await fetchDataThroughProxy(url, {
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Origin': 'https://axiom.trade',
+        'Referer': 'https://axiom.trade/',
+        'Cookie': AXIOM_COOKIES
+      }
+    });
+
+    // Calculate last 5 minutes stats
+    const last5Min = response.slice(0, 5);
+
+    const totalBuyTransactions = last5Min.reduce((sum, item) => sum + item.buyCount, 0);
+    const totalSellTransactions = last5Min.reduce((sum, item) => sum + item.sellCount, 0);
+    const totalBuyVolume = last5Min.reduce((sum, item) => sum + item.buyVolumeSol, 0);
+    const totalSellVolume = last5Min.reduce((sum, item) => sum + item.sellVolumeSol, 0);
+
+    const netTransactionDiff = totalBuyTransactions - totalSellTransactions;
+    const netVolumeDiff = totalBuyVolume - totalSellVolume;
+
+    const calculatedStats = {
+      last5MinStats: {
+        totalBuyTransactions,
+        totalSellTransactions,
+        totalBuyVolume,
+        totalSellVolume,
+        netTransactionDiff,
+        netVolumeDiff,
+        activity: netTransactionDiff > 0 ? 'more_buys' : netTransactionDiff < 0 ? 'more_sells' : 'balanced'
+      }
+    };
+
+    return {
+      // rawData: response,
+      ...calculatedStats
+    };
+  } catch (error) {
+    console.error('Token stats API error:', error.message);
+    throw new Error(`Failed to fetch token stats: ${error.message}`);
+  }
+};
+
+
 /**
  * Fetches new trending data from Axiom API
  * @param {string} timePeriod - The time period for trending data (default: '5m')
@@ -64,5 +114,6 @@ const getNewTrending = async (timePeriod = '5m') => {
 
 module.exports = {
   getTokenInfo,
-  getNewTrending
+  getNewTrending,
+  getTokenStats
 };

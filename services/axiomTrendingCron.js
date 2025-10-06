@@ -11,17 +11,17 @@ let cachedSolPrice = null;
 let lastPriceUpdate = null;
 
 // Accepted protocols for token analysis
-const ACCEPTED_PROTOCOLS = ["Pump AMM", "Pump V1", "Raydium CLMM", "Meteora AMM V2", "Raydium CPMM", "Raydium V4"];
+const ACCEPTED_PROTOCOLS = ["Pump AMM", "Raydium CLMM", "Meteora AMM V2", "Raydium CPMM", "Raydium V4"];
 
 // Minimum volume in USD
 const MIN_VOLUME_USD = 5000;
 
 // Minimum market cap in USD
-const MIN_MARKET_CAP_USD = 100000;
+const MIN_MARKET_CAP_USD =70000;
 
 // Minimum and maximum token age in minutes
 const MIN_TOKEN_AGE_MINUTES = 1;
-const MAX_TOKEN_AGE_MINUTES = 30;
+const MAX_TOKEN_AGE_MINUTES = 20;
 // const MAX_TOKEN_AGE_MINUTES = 24*60*20000; // 2 hours maximum age
 
 // Minimum number of holders
@@ -177,7 +177,7 @@ const analyzeToken = async (token) => {
             action: "createTokenWithPosition",
             tokenAddress: token.tokenAddress,
             positionInfo: {
-                buyAmountUsd: 0.5,
+                buyAmountUsd: 1,
                 takeProfitPct: youngTokenTakeProfitPct,
                 stopLossPct: -20,
                 axiomData: tokenInfo,
